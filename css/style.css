@@ -1,0 +1,24 @@
+body {
+  padding: 20px;
+  background-color: #dff9fb;
+}
+
+@media screen and (max-width: 600px) {
+  nav li {
+    float: none;
+    width: 100%;
+  }
+}
+
+p {
+  padding: 12px 10px;
+}
+
+input {
+  padding: 5px;
+}
+
+#map {
+  padding: 5px;
+  height: 350px;
+}
