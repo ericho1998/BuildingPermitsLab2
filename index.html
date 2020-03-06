@@ -31,33 +31,37 @@
   <head>
   <body>
 
-       <!-- Date Picker -->
+       <!-- HTML Setup -->
       <p> Welcome! Please pick a date range to search for building permits: </p>
-        <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; value="2020-01-01 - 2020-01-31"">
+        <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; ">
           <i class="fa fa-calendar"></i>&nbsp;
-          <span></span> <i class="fa fa-caret-down"></i>
+          <span>Click Here to Select a Date Range</span> <i class="fa fa-caret-down"></i>
         </div>
+        <p></p>
         <div id="map"></div>
+      <!-- JS for the date selector widget and the map -->
         <script type="text/javascript">
+        // set up values for permits and markers
           var permits;
           var markers = L.markerClusterGroup();
+        //function for the permit get and marker creation
           $(function() {
             var start = moment().subtract(29, 'days');
             var end = moment();
             function cb(start, end) {
               $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-              console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+
               var str = "issueddate > '" + start.format('YYYY-MM-DD') + "' and issueddate < '" + end.format('YYYY-MM-DD')+"'";
-              console.log(str)
+
               axios.get("https://data.calgary.ca/resource/c2es-76ed.geojson", {
               params: {
                 $where: str
                     }
                   })
-              .then(function(permits) {
-                console.log(permits);
 
+              .then(function(permits) {
                 markers.clearLayers();
+                // Get all the necessary values for the popup
                 for (var i = 0; i < permits.data.features.length; i++) {
                   var a = permits.data.features[i];
                   var issue= a.properties.issueddate;
@@ -66,6 +70,7 @@
                   var community = a.properties.communityname;
                   var address = a.properties.originaladdress;
                   var geo = a.geometry;
+                  // If the coordinates don't exist, skip them
                   if (geo == null){
                     continue;
                   }
@@ -93,7 +98,7 @@
             }, cb);
 
           });
-
+          //Map setup over Calgary
            var cmap = L.map('map').setView([51.0447, -114.0719], 13);
            L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
              attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -103,8 +108,6 @@
              zoomOffset: -1,
              accessToken: 'pk.eyJ1IjoiZXJpY2hvMTk5OCIsImEiOiJjazdhdDRlMm4wNHF1M2VwcHNudXUxd3czIn0.Z8rFAU1xQUax9N5qrnfoFg'
               }).addTo(cmap);
-
-
            </script>
 
   </body>
