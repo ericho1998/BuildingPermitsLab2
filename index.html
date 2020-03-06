@@ -30,15 +30,21 @@
     <link rel="stylesheet" type="text/css" href = "css/style.css">
   <head>
   <body>
-
        <!-- HTML Setup -->
-      <p> Welcome! Please pick a date range to search for building permits: </p>
-        <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; ">
+       <nav>
+        <ul>
+          <li>Welcome! Please pick a date range to search for building permits:</li>
+        </ul>
+      </nav>
+        <div id="reportrange">
           <i class="fa fa-calendar"></i>&nbsp;
           <span>Click Here to Select a Date Range</span> <i class="fa fa-caret-down"></i>
         </div>
 
         <div id="map"></div>
+        <p>
+          <a id="ee" class="active" href="easteregg.html">__</a></li>
+        </p>
       <!-- JS for the date selector widget and the map -->
         <script type="text/javascript">
         // set up values for permits and markers

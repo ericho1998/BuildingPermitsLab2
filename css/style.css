@@ -15,10 +15,49 @@ p {
 }
 
 #reportrange {
-  width: 40%;
+  width: 30%;
   padding: 5px;
+  border-width: thin;
+  background: #a3dce1;
+  cursor: pointer;
+  padding: 5px;
+  border-style: solid;
+  border-radius: 3px;
+  boder-color: #ccc;
 }
 #map {
   width: 100%;
   height: 500px;
+}
+.current {
+  background-color: #23b368;
+}
+
+nav ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  background-color: #7dbfde;
+  border-radius:2px;
+}
+
+div {
+  padding: 5px;
+}
+
+nav li a{
+  float: right;
+  text-align: center;
+}
+nav li  {
+  float: left;
+  background-color: #7dbfde;
+  display: block;
+  text-align: center;
+  padding: 15px 15px;
+  text-decoration: none;
+}
+div #rangereport:hover {
+  background-color: #2f8cb6;
 }
