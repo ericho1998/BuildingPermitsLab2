@@ -20,39 +20,64 @@
     <!-- Mapbox stuff -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v1.8.1/mapbox-gl.css" rel="stylesheet" />
+    <!-- Axios -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- Marker Cluster -->
+    <script type="text/javascript" src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
     <!-- My style css -->
     <link rel="stylesheet" type="text/css" href = "css/style.css">
   <head>
   <body>
-    <!-- Put a Map on the Page -->
-      <div>
-        <p> Welcome! Select a date range, then click on the map icons generated to see the permits. </p>
-      </div>
-      <div id="map"></div>
-      <script>
-       var cmap = L.map('map').setView([51.0447, -114.0719], 12);
-       L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-         attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-         maxZoom: 18,
-         id: 'mapbox/streets-v11',
-         tileSize: 512,
-         zoomOffset: -1,
-         accessToken: 'pk.eyJ1IjoiZXJpY2hvMTk5OCIsImEiOiJjazdhdDRlMm4wNHF1M2VwcHNudXUxd3czIn0.Z8rFAU1xQUax9N5qrnfoFg'
-          }).addTo(cmap);
-       </script>
 
        <!-- Date Picker -->
-      <p> Please pick a date range to search: </p>
-        <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+      <p> Welcome! Please pick a date range to search for building permits: </p>
+        <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; value="2020-01-01 - 2020-01-31"">
           <i class="fa fa-calendar"></i>&nbsp;
           <span></span> <i class="fa fa-caret-down"></i>
         </div>
+        <div id="map"></div>
         <script type="text/javascript">
+          var permits;
+          var markers = L.markerClusterGroup();
           $(function() {
             var start = moment().subtract(29, 'days');
             var end = moment();
             function cb(start, end) {
               $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+              console.log("A new date selection was made: " + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD'));
+              var str = "issueddate > '" + start.format('YYYY-MM-DD') + "' and issueddate < '" + end.format('YYYY-MM-DD')+"'";
+              console.log(str)
+              axios.get("https://data.calgary.ca/resource/c2es-76ed.geojson", {
+              params: {
+                $where: str
+                    }
+                  })
+              .then(function(permits) {
+                console.log(permits);
+
+                markers.clearLayers();
+                for (var i = 0; i < permits.data.features.length; i++) {
+                  var a = permits.data.features[i];
+                  var issue= a.properties.issueddate;
+                  var work = a.properties.workclassgroup;
+                  var contract = a.properties.contractorname;
+                  var community = a.properties.communityname;
+                  var address = a.properties.originaladdress;
+                  var geo = a.geometry;
+                  if (geo == null){
+                    continue;
+                  }
+                  var n = a.geometry.coordinates[1];
+                  var e = a.geometry.coordinates[0];
+                  var marker = L.marker(new L.LatLng(n, e));
+                  marker.bindPopup("Issued Date: " + issue + "<br>" + "Work Class Group: " + work + "<br>" + "Contractor Name: " + contract + "<br>" + "Community Name: " + community + "<br>" + "Original Address: " + address)
+                  markers.addLayer(marker);
+                }
+                cmap.addLayer(markers);
+              })
+
             }
             $('#reportrange').daterangepicker({
               startDate: start,
@@ -66,9 +91,21 @@
                 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
               }
             }, cb);
-            cb(start, end);
 
           });
-        </script>
+
+           var cmap = L.map('map').setView([51.0447, -114.0719], 13);
+           L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+             maxZoom: 18,
+             id: 'mapbox/streets-v11',
+             tileSize: 512,
+             zoomOffset: -1,
+             accessToken: 'pk.eyJ1IjoiZXJpY2hvMTk5OCIsImEiOiJjazdhdDRlMm4wNHF1M2VwcHNudXUxd3czIn0.Z8rFAU1xQUax9N5qrnfoFg'
+              }).addTo(cmap);
+
+
+           </script>
+
   </body>
 <html>
